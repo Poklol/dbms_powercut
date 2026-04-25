@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PowerCut Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="login" class="login-body">
+  <main class="login-shell">
+    <section class="login-card">
+      <h1>Power Cut Command</h1>
+      <p class="subtitle">Prediction & Accountability System</p>
+      <form id="login-form" class="form-grid">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" placeholder="Enter username" required>
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="Enter password" required>
+
+        <button type="submit" class="glow-btn">Login</button>
+      </form>
+      <p id="login-message" class="message"></p>
+      <p class="hint">Try: citizen1 / worker1 / admin1 (password: 123)</p>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="admin" class="dashboard-body">
+  <nav class="top-nav">
+    <h1>Admin Grid Monitor</h1>
+    <a href="index.html" class="nav-link">Logout</a>
+  </nav>
+
+  <main class="content-wrap admin-layout">
+    <section class="card">
+      <div class="section-head">
+        <h2>Live Sensor Input</h2>
+        <button id="demo-fault" class="mini-btn danger" type="button">Run Fault Demo</button>
+      </div>
+      <form id="sensor-form" class="form-grid two-col-form">
+        <div>
+          <label for="sensor-id">Sensor ID</label>
+          <input id="sensor-id" name="sensor_id" type="number" min="1" step="1" required>
+        </div>
+        <div>
+          <label for="sensor-temperature">Temperature</label>
+          <input id="sensor-temperature" name="temperature" type="number" step="0.01" required>
+        </div>
+        <div>
+          <label for="sensor-voltage">Voltage</label>
+          <input id="sensor-voltage" name="voltage" type="number" step="0.01" required>
+        </div>
+        <div>
+          <label for="sensor-load">Load</label>
+          <input id="sensor-load" name="load" type="number" step="0.01" required>
+        </div>
+        <button class="glow-btn" type="submit">Submit Sensor Reading</button>
+      </form>
+      <p id="sensor-message" class="message"></p>
+      <p class="hint">Auto refresh is enabled every 5 seconds.</p>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <h2>Live Grid Overview</h2>
+        <div class="badge-strip">
+          <span class="status-pill pill-red">FAULT</span>
+          <span class="status-pill pill-orange">HIGH</span>
+          <span class="status-pill pill-yellow">NORMAL</span>
+        </div>
+      </div>
+      <div class="chart-grid">
+        <article class="chart-card">
+          <h3>Transformer Load</h3>
+          <canvas id="transformer-load-chart" height="180"></canvas>
+        </article>
+        <article class="chart-card">
+          <h3>Outage Distribution</h3>
+          <canvas id="outage-chart" height="180"></canvas>
+        </article>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <h2>Tamil Nadu Transformer Map</h2>
+        <span class="hint">Status map from live transformer API</span>
+      </div>
+      <div id="map"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <h2>Transformer Health Board</h2>
+        <button id="refresh-transformers" class="mini-btn" type="button">Refresh</button>
+      </div>
+      <div id="transformer-list" class="grid-list"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <h2>Live Outage Feed</h2>
+        <button id="refresh-outages" class="mini-btn" type="button">Refresh</button>
+      </div>
+      <div id="outage-list" class="grid-list"></div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Citizen Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="citizen" class="dashboard-body">
+  <nav class="top-nav">
+    <h1>Citizen Control Panel</h1>
+    <a href="index.html" class="nav-link">Logout</a>
+  </nav>
+
+  <main class="content-wrap">
+    <section class="card">
+      <h2>Report New Complaint</h2>
+      <form id="complaint-form" class="form-grid">
+        <label for="description">Complaint Description</label>
+        <textarea id="description" name="description" rows="5" placeholder="Describe the outage issue in your area..." required></textarea>
+        <button type="submit" class="glow-btn">Submit Complaint</button>
+      </form>
+      <p id="complaint-message" class="message"></p>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

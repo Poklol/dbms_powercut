@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worker Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="worker" class="dashboard-body">
+  <nav class="top-nav">
+    <h1>Worker Operations Deck</h1>
+    <a href="index.html" class="nav-link">Logout</a>
+  </nav>
+
+  <main class="content-wrap">
+    <section class="card">
+      <div class="section-head">
+        <h2>Active Complaints</h2>
+        <button id="refresh-complaints" class="mini-btn" type="button">Refresh</button>
+      </div>
+      <div id="complaints-list" class="grid-list"></div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
