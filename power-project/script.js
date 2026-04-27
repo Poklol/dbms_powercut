@@ -5,6 +5,9 @@ let outageChart;
 let adminRefreshTimer;
 let transformerMap;
 let transformerMarkerLayer;
+let riskPanelVisible = false;
+let latestReadingCache = null;
+let readingsCache = [];
 
 function setMessage(elementId, text, ok = true) {
   const target = document.getElementById(elementId);
@@ -15,6 +18,17 @@ function setMessage(elementId, text, ok = true) {
   target.textContent = text;
   target.classList.remove('ok', 'err');
   target.classList.add(ok ? 'ok' : 'err');
+}
+
+function riskPillClass(level) {
+  const value = String(level || '').toUpperCase();
+  if (value === 'HIGH') {
+    return 'pill-red';
+  }
+  if (value === 'MEDIUM') {
+    return 'pill-orange';
+  }
+  return 'pill-yellow';
 }
 
 function statusPillClass(statusText) {
@@ -468,6 +482,229 @@ async function submitSensorReading(payload) {
   return { response, data };
 }
 
+async function predictOutageRisk(payload) {
+  const response = await fetch(`${API_BASE_URL}/predict-outage-risk`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await response.json();
+  return { response, data };
+}
+
+function renderRiskResult(data) {
+  const riskLevelText = document.getElementById('risk-level-text');
+  const riskScoreText = document.getElementById('risk-score-text');
+  const riskModelText = document.getElementById('risk-model-text');
+
+  if (!riskLevelText || !riskScoreText || !riskModelText) {
+    return;
+  }
+
+  const level = data.risk_level || 'LOW';
+  const pillClass = riskPillClass(level);
+  riskLevelText.innerHTML = `<span class="status-pill ${pillClass}">${level}</span>`;
+  riskScoreText.textContent = `${data.risk_percent}%`;
+  riskModelText.textContent = `${data.model_type} (${data.training_samples} samples)`;
+}
+
+function setRiskPanelState(show) {
+  const panel = document.getElementById('risk-panel');
+  const toggleButton = document.getElementById('toggle-risk-panel');
+  if (!panel || !toggleButton) {
+    return;
+  }
+
+  riskPanelVisible = show;
+  panel.classList.toggle('hidden-card', !show);
+  toggleButton.textContent = show ? 'Hide Outage Risk Predictor' : 'Show Outage Risk Predictor';
+}
+
+function copySensorValuesToRiskForm() {
+  const mappings = [
+    ['sensor-id', 'risk-sensor-id'],
+    ['sensor-temperature', 'risk-temperature'],
+    ['sensor-voltage', 'risk-voltage'],
+    ['sensor-load', 'risk-load']
+  ];
+
+  mappings.forEach(([fromId, toId]) => {
+    const fromEl = document.getElementById(fromId);
+    const toEl = document.getElementById(toId);
+    if (fromEl && toEl) {
+      toEl.value = fromEl.value;
+    }
+  });
+}
+
+function applyReadingToForms(reading) {
+  if (!reading) {
+    return;
+  }
+
+  const mappings = [
+    ['sensor-id', reading.sensor_id],
+    ['sensor-temperature', reading.temperature],
+    ['sensor-voltage', reading.voltage],
+    ['sensor-load', reading.load_value],
+    ['risk-sensor-id', reading.sensor_id],
+    ['risk-temperature', reading.temperature],
+    ['risk-voltage', reading.voltage],
+    ['risk-load', reading.load_value]
+  ];
+
+  mappings.forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.value = value ?? '';
+    }
+  });
+}
+
+function getLatestReadingForSensor(sensorId) {
+  const id = Number(sensorId);
+  if (!id || !Array.isArray(readingsCache) || readingsCache.length === 0) {
+    return null;
+  }
+
+  const matches = readingsCache.filter((item) => Number(item.sensor_id) === id);
+  if (!matches.length) {
+    return null;
+  }
+
+  return matches.sort((a, b) => Number(b.reading_id || 0) - Number(a.reading_id || 0))[0];
+}
+
+function fillRiskFieldsFromSelectedSensor() {
+  const sensorInput = document.getElementById('risk-sensor-id');
+  if (!sensorInput) {
+    return;
+  }
+
+  const latestForSensor = getLatestReadingForSensor(sensorInput.value);
+  if (!latestForSensor) {
+    setMessage('risk-message', 'No reading found for this sensor ID yet. Enter values manually or submit new sensor input.', false);
+    return;
+  }
+
+  const temperatureEl = document.getElementById('risk-temperature');
+  const voltageEl = document.getElementById('risk-voltage');
+  const loadEl = document.getElementById('risk-load');
+  if (temperatureEl) temperatureEl.value = latestForSensor.temperature ?? '';
+  if (voltageEl) voltageEl.value = latestForSensor.voltage ?? '';
+  if (loadEl) loadEl.value = latestForSensor.load_value ?? '';
+  setMessage('risk-message', `Loaded latest values for sensor ${latestForSensor.sensor_id}.`, true);
+}
+
+async function loadSensorReferenceData() {
+  const sensorListText = document.getElementById('sensor-list-text');
+  const latestReadingText = document.getElementById('latest-reading-text');
+
+  if (!sensorListText || !latestReadingText) {
+    return;
+  }
+
+  try {
+    const [sensorsResp, readingsResp] = await Promise.all([
+      fetch(`${API_BASE_URL}/sensors`),
+      fetch(`${API_BASE_URL}/readings`)
+    ]);
+
+    const sensors = await sensorsResp.json();
+    const readings = await readingsResp.json();
+
+    if (sensorsResp.ok && Array.isArray(sensors) && sensors.length) {
+      sensorListText.textContent = sensors
+        .map((item) => `${item.sensor_id} (T${item.transformer_id}, ${item.sensor_type || 'Sensor'})`)
+        .join(', ');
+    } else {
+      sensorListText.textContent = 'No sensor IDs available.';
+    }
+
+    if (readingsResp.ok && Array.isArray(readings) && readings.length) {
+      readingsCache = readings;
+      const latest = [...readings].sort((a, b) => (b.reading_id || 0) - (a.reading_id || 0))[0];
+      latestReadingCache = latest;
+      latestReadingText.textContent = `Sensor ${latest.sensor_id} | Temp ${latest.temperature} | Volt ${latest.voltage} | Load ${latest.load_value}`;
+    } else {
+      readingsCache = [];
+      latestReadingCache = null;
+      latestReadingText.textContent = 'No readings found yet. Submit one from Live Sensor Input.';
+    }
+  } catch (error) {
+    readingsCache = [];
+    sensorListText.textContent = 'Unable to load sensor list.';
+    latestReadingText.textContent = 'Unable to load latest reading.';
+  }
+}
+
+function handleRiskPredictionPanel() {
+  const toggleButton = document.getElementById('toggle-risk-panel');
+  const riskForm = document.getElementById('risk-form');
+  const copyButton = document.getElementById('copy-sensor-to-risk');
+  const latestButton = document.getElementById('use-latest-reading');
+  const riskSensorInput = document.getElementById('risk-sensor-id');
+
+  if (!toggleButton || !riskForm) {
+    return;
+  }
+
+  setRiskPanelState(false);
+
+  toggleButton.addEventListener('click', () => {
+    setRiskPanelState(!riskPanelVisible);
+  });
+
+  if (copyButton) {
+    copyButton.addEventListener('click', copySensorValuesToRiskForm);
+  }
+  if (latestButton) {
+    latestButton.addEventListener('click', () => {
+      const selectedLatest = riskSensorInput ? getLatestReadingForSensor(riskSensorInput.value) : null;
+      const readingToUse = selectedLatest || latestReadingCache;
+      if (!readingToUse) {
+        setMessage('risk-message', 'No latest reading available yet. Submit a sensor reading first.', false);
+        return;
+      }
+      applyReadingToForms(readingToUse);
+      setMessage('risk-message', 'Latest reading values copied into forms.', true);
+    });
+  }
+
+  if (riskSensorInput) {
+    riskSensorInput.addEventListener('change', fillRiskFieldsFromSelectedSensor);
+    riskSensorInput.addEventListener('blur', fillRiskFieldsFromSelectedSensor);
+  }
+
+  riskForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const payload = {
+      sensor_id: Number(document.getElementById('risk-sensor-id').value),
+      temperature: Number(document.getElementById('risk-temperature').value),
+      voltage: Number(document.getElementById('risk-voltage').value),
+      load: Number(document.getElementById('risk-load').value)
+    };
+
+    setMessage('risk-message', 'Running outage risk prediction...', true);
+
+    try {
+      const { response, data } = await predictOutageRisk(payload);
+      if (!response.ok || data.status !== 'success') {
+        setMessage('risk-message', data.message || 'Prediction failed.', false);
+        return;
+      }
+
+      renderRiskResult(data);
+      setMessage('risk-message', 'Prediction complete. You can show this as AI/ML output.', true);
+      setRiskPanelState(true);
+      await loadSensorReferenceData();
+    } catch (error) {
+      setMessage('risk-message', 'Backend not reachable. Confirm Flask is running.', false);
+    }
+  });
+}
+
 function handleSensorInput() {
   const form = document.getElementById('sensor-form');
   if (!form) {
@@ -495,6 +732,11 @@ function handleSensorInput() {
 
       setMessage('sensor-message', 'Reading added. Dashboard refreshed with latest transformer and outage data.', true);
       form.reset();
+      const predicted = await predictOutageRisk(payload);
+      if (predicted.response.ok && predicted.data.status === 'success') {
+        renderRiskResult(predicted.data);
+      }
+      await loadSensorReferenceData();
       await refreshAdminData();
     } catch (error) {
       setMessage('sensor-message', 'Backend not reachable. Confirm Flask is running.', false);
@@ -515,6 +757,11 @@ function handleSensorInput() {
         }
 
         setMessage('sensor-message', 'Fault demo completed. Check red FAULT badges and outage feed.', true);
+        const predicted = await predictOutageRisk(demoPayload);
+        if (predicted.response.ok && predicted.data.status === 'success') {
+          renderRiskResult(predicted.data);
+        }
+        await loadSensorReferenceData();
         await refreshAdminData();
       } catch (error) {
         setMessage('sensor-message', 'Backend not reachable. Confirm Flask is running.', false);
@@ -547,7 +794,9 @@ function bindPageActions() {
 
   if (currentPage === 'admin') {
     initTransformerMap();
+    handleRiskPredictionPanel();
     handleSensorInput();
+    loadSensorReferenceData();
     refreshAdminData();
 
     if (adminRefreshTimer) {

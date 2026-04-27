@@ -4,6 +4,23 @@ from db import get_db_connection
 sensor_bp = Blueprint('sensor', __name__)
 
 
+@sensor_bp.route('/sensors', methods=['GET'])
+def get_sensors():
+    db = get_db_connection()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute(
+        '''
+        SELECT sensor_id, sensor_type, status, transformer_id
+        FROM sensor
+        ORDER BY sensor_id ASC
+        '''
+    )
+    data = cursor.fetchall()
+    cursor.close()
+    db.close()
+    return jsonify(data)
+
+
 @sensor_bp.route('/readings', methods=['GET'])
 def get_readings():
     db = get_db_connection()

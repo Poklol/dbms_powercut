@@ -181,6 +181,12 @@ textarea:focus {
   flex-wrap: wrap;
 }
 
+.button-row {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
 .grid-list {
   margin-top: 0.85rem;
   display: grid;
@@ -217,6 +223,22 @@ textarea:focus {
 
 .chart-card {
   height: 280px;
+}
+
+.prediction-box {
+  margin-top: 0.8rem;
+  border: 1px solid rgba(255, 204, 0, 0.25);
+  border-radius: 12px;
+  padding: 0.8rem;
+  background: rgba(8, 8, 8, 0.8);
+}
+
+.prediction-box p {
+  margin: 0.35rem 0;
+}
+
+.hidden-card {
+  display: none;
 }
 
 #map {

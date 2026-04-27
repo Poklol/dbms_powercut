@@ -20,7 +20,10 @@
     <section class="card">
       <div class="section-head">
         <h2>Live Sensor Input</h2>
-        <button id="demo-fault" class="mini-btn danger" type="button">Run Fault Demo</button>
+        <div class="button-row">
+          <button id="toggle-risk-panel" class="mini-btn" type="button">Show Outage Risk Predictor</button>
+          <button id="demo-fault" class="mini-btn danger" type="button">Run Fault Demo</button>
+        </div>
       </div>
       <form id="sensor-form" class="form-grid two-col-form">
         <div>
@@ -42,7 +45,47 @@
         <button class="glow-btn" type="submit">Submit Sensor Reading</button>
       </form>
       <p id="sensor-message" class="message"></p>
-      <p class="hint">Auto refresh is enabled every 5 seconds.</p>
+      <p class="hint">Live Sensor Input simulates incoming IoT data. It stores readings, can trigger FAULT/outage automation, and updates dashboard + ML prediction.</p>
+    </section>
+
+    <section class="card hidden-card" id="risk-panel">
+      <div class="section-head">
+        <h2>Outage Risk Predictor (AI/ML)</h2>
+      </div>
+      <form id="risk-form" class="form-grid two-col-form">
+        <div>
+          <label for="risk-sensor-id">Sensor ID</label>
+          <input id="risk-sensor-id" type="number" min="1" step="1" required>
+        </div>
+        <div>
+          <label for="risk-temperature">Temperature</label>
+          <input id="risk-temperature" type="number" step="0.01" required>
+        </div>
+        <div>
+          <label for="risk-voltage">Voltage</label>
+          <input id="risk-voltage" type="number" step="0.01" required>
+        </div>
+        <div>
+          <label for="risk-load">Load</label>
+          <input id="risk-load" type="number" step="0.01" required>
+        </div>
+        <div class="button-row">
+          <button class="glow-btn" type="submit">Predict Outage Risk</button>
+          <button id="copy-sensor-to-risk" class="mini-btn" type="button">Use Sensor Form Values</button>
+          <button id="use-latest-reading" class="mini-btn" type="button">Use Latest Reading</button>
+        </div>
+      </form>
+      <div id="sensor-reference" class="prediction-box">
+        <p><strong>Available Sensor IDs:</strong> <span id="sensor-list-text">Loading...</span></p>
+        <p><strong>Latest Reading:</strong> <span id="latest-reading-text">Loading...</span></p>
+        <p class="hint">Quick demo values: Sensor ID 1, Temp 95, Voltage 231, Load 500 -> usually HIGH risk.</p>
+      </div>
+      <div id="risk-result" class="prediction-box">
+        <p><strong>Risk Level:</strong> <span id="risk-level-text">-</span></p>
+        <p><strong>Risk Score:</strong> <span id="risk-score-text">-</span></p>
+        <p><strong>Model:</strong> <span id="risk-model-text">-</span></p>
+      </div>
+      <p id="risk-message" class="message"></p>
     </section>
 
     <section class="card">
