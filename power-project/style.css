@@ -75,6 +75,7 @@ label {
 }
 
 input,
+select,
 textarea {
   width: 100%;
   border: 1px solid rgba(255, 204, 0, 0.25);
@@ -88,6 +89,7 @@ textarea {
 }
 
 input:focus,
+select:focus,
 textarea:focus {
   border-color: var(--secondary);
   box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.2);
@@ -247,6 +249,186 @@ textarea:focus {
   border: 1px solid rgba(255, 204, 0, 0.3);
   overflow: hidden;
   margin-top: 0.8rem;
+}
+
+#worker-map {
+  height: 320px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 204, 0, 0.3);
+  overflow: hidden;
+  margin-top: 0.8rem;
+}
+
+.worker-layout {
+  display: grid;
+  gap: 1rem;
+}
+
+body.modal-open .worker-layout,
+body.modal-open .top-nav {
+  filter: blur(5px) brightness(0.65);
+  pointer-events: none;
+  user-select: none;
+}
+
+.kpi-grid {
+  margin-top: 0.8rem;
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.kpi-card {
+  background: #121212;
+  border: 1px solid rgba(255, 204, 0, 0.22);
+  border-radius: 12px;
+  padding: 0.75rem;
+}
+
+.kpi-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.kpi-card strong {
+  font-size: 1.4rem;
+}
+
+.worker-filter-grid {
+  margin-top: 0.7rem;
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.worker-form-row {
+  margin: 0.55rem 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(160px, 1fr));
+  gap: 0.65rem;
+}
+
+.complaint-card.compact {
+  min-height: 220px;
+  display: grid;
+  gap: 0.3rem;
+  align-content: start;
+}
+
+.compact-meta {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 0.35rem;
+  color: var(--muted);
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 0.35rem;
+}
+
+.legend-dot.critical { background: #ff3300; }
+.legend-dot.high { background: #ff6600; }
+.legend-dot.medium { background: #ffcc00; }
+.legend-dot.normal { background: #00ff88; }
+
+.chip {
+  display: inline-block;
+  font-weight: 700;
+  border: 1px solid rgba(255, 204, 0, 0.35);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  background: #141414;
+}
+
+.chip-danger {
+  border-color: rgba(255, 51, 0, 0.55);
+  color: #fff;
+  background: rgba(255, 51, 0, 0.22);
+}
+
+.inner-box {
+  margin-top: 0.6rem;
+  border: 1px solid rgba(255, 204, 0, 0.2);
+  border-radius: 10px;
+  padding: 0.55rem;
+  background: rgba(7, 7, 7, 0.75);
+}
+
+.note-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.note-item {
+  border: 1px solid rgba(255, 204, 0, 0.16);
+  border-radius: 10px;
+  padding: 0.45rem 0.55rem;
+}
+
+.note-item p {
+  margin: 0.2rem 0;
+}
+
+.inline-link {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.overdue-card {
+  border-color: rgba(255, 51, 0, 0.65);
+  box-shadow: 0 0 14px rgba(255, 51, 0, 0.2);
+}
+
+.quick-actions .mini-btn {
+  font-size: 0.82rem;
+  padding: 0.42rem 0.75rem;
+}
+
+.sound-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.modal-overlay.hidden-card {
+  display: none !important;
+}
+
+.modal-card {
+  width: min(1000px, 96vw);
+  max-height: 88vh;
+  overflow: auto;
+  border: 1px solid rgba(255, 204, 0, 0.35);
+  border-radius: 16px;
+  padding: 1rem;
+  background: linear-gradient(165deg, rgba(26, 26, 26, 0.98), rgba(12, 12, 12, 0.98));
+  box-shadow: 0 0 26px rgba(255, 102, 0, 0.28);
+}
+
+.modal-section {
+  display: grid;
+  gap: 0.45rem;
 }
 
 .map-marker-shell {
